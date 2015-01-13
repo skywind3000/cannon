@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "transmod", "transmod\transmod.vcxproj", "{AAF62640-90AF-41DC-9F96-9CCF95466F92}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wcclib", "cclib\wcclib.vcxproj", "{13E751DF-B87F-4B65-857C-2422AE56D50F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AAF62640-90AF-41DC-9F96-9CCF95466F92}.Debug|Win32.ActiveCfg = Debug|Win32
+		{AAF62640-90AF-41DC-9F96-9CCF95466F92}.Debug|Win32.Build.0 = Debug|Win32
+		{AAF62640-90AF-41DC-9F96-9CCF95466F92}.Release|Win32.ActiveCfg = Release|Win32
+		{AAF62640-90AF-41DC-9F96-9CCF95466F92}.Release|Win32.Build.0 = Release|Win32
+		{13E751DF-B87F-4B65-857C-2422AE56D50F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{13E751DF-B87F-4B65-857C-2422AE56D50F}.Debug|Win32.Build.0 = Debug|Win32
+		{13E751DF-B87F-4B65-857C-2422AE56D50F}.Release|Win32.ActiveCfg = Release|Win32
+		{13E751DF-B87F-4B65-857C-2422AE56D50F}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

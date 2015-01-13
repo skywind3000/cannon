@@ -1,0 +1,107 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="source">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="resource">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="aprmod.c">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="aprpoll.c">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="aprpollk.c">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="aprpollo.c">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="aprpollp.c">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="aprpolls.c">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="aprsock.c">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="aprsys.c">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="icqueue.c">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="icvector.c">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="idtimeout.c">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="impoold.c">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="imstream.c">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="itransmod.c">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="itranspoc.c">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="transmod.c">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="aprpollu.c">
+      <Filter>source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="aprmod.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="aprpoll.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="aprpollh.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="aprsock.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="aprsys.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="icqueue.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="icstream.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="icvector.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="idtimeout.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="impoold.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="imstream.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="itransmod.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="transmod.h">
+      <Filter>source</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
