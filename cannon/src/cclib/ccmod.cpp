@@ -499,7 +499,7 @@ XEXPORT int cg_groupcast(const int *hids, int count, const void *data, int size,
 		ptr[2] = (hid >> 16) & 0xff;
 		ptr[3] = (hid >> 24) & 0xff;
 	}
-	p = ptr;
+	vector[1] = ptr;
 	#endif
 
 	if (_xor_mask) {
