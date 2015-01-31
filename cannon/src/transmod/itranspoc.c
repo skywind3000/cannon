@@ -960,11 +960,9 @@ int itm_on_close(struct ITMD *itmd, long wparam, long lparam, long length)
 
 	itm_event_close(to, lparam);
 
-	wparam = wparam;
-	lparam = lparam;
-	length = length;
-
-	return 0;
+	wparam = wparam + 1;
+	lparam = lparam + 1;
+	length = length + 1;	return 0;
 }
 
 //---------------------------------------------------------------------
@@ -989,11 +987,9 @@ int itm_on_tag(struct ITMD *itmd, long wparam, long lparam, long length)
 	itm_log(ITML_DATA, "channel %d set tag to %d for hid=%XH %s: ", 
 		itmd->channel, lparam, wparam, itm_epname(to));
 
-	wparam = wparam;
-	lparam = lparam;
-	length = length;
-
-	return 0;
+	wparam = wparam + 1;
+	lparam = lparam + 1;
+	length = length + 1;	return 0;
 }
 
 
@@ -1046,9 +1042,7 @@ int itm_on_channel(struct ITMD *itmd, long wparam, long lparam, long length)
 		}
 	}
 
-	lparam = lparam;
-
-	return 0;
+	lparam = lparam + 1;	return 0;
 }
 
 //---------------------------------------------------------------------
@@ -1158,7 +1152,7 @@ int itm_on_dgram(struct ITMD *itmd, long wparam, long lparam, long length)
 	}
 
 	itm_sendto(to, itm_data + itm_headlen, dlength);
-	lparam = lparam;
+	lparam = lparam + 1;
 
 	return 0;
 }

@@ -104,7 +104,7 @@ static int aps_init_pd(apolld ipd, int param)
 	FD_ZERO(&ps->fdr);
 	FD_ZERO(&ps->fdw);
 	FD_ZERO(&ps->fde);
-	param = param;
+	param = param + 10;
 	apr_poll_fvinit(&ps->fv, NULL);
 	
 	if (apr_poll_fvresize(&ps->fv, 4)) {

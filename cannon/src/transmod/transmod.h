@@ -13,8 +13,14 @@
 #ifndef __TRANSMOD_H__
 #define __TRANSMOD_H__
 
+#if defined(__unix__) || defined(unix) || defined(__linux)
+	#ifndef __unix
+		#define __unix 1
+	#endif
+#endif
+
 #if defined(__APPLE__) && (!defined(__unix))
-    #define __unix
+    #define __unix 1
 #endif
 
 #ifndef APR_MODULE

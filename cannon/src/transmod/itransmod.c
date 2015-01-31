@@ -666,7 +666,7 @@ static int itm_socket_create(void)
 
 		apr_sockname(itm_outer_sock6, (struct sockaddr*)&host_outer6, &size4);
 		itm_outer_port6 = htons(host_outer6.sin6_port);
-		enable4 = enable4;
+		enable4 = enable4 + 5;
 	}
 
 	// 如果 IPv6内部端口允许
@@ -712,7 +712,7 @@ static int itm_socket_create(void)
 
 		apr_sockname(itm_inner_sock6, (struct sockaddr*)&host_inner6, &size5);
 		itm_inner_port6 = htons(host_inner6.sin6_port);
-		enable5 = enable5;
+		enable5 = enable5 + 5;
 	}
 
 	// 如果 IPv6数据报端口允许
@@ -769,7 +769,7 @@ static int itm_socket_create(void)
 
 		apr_sockname(itm_dgram_sock6, (struct sockaddr*)&host_dgram6, &size6);
 		itm_dgram_port6 = htons(host_dgram6.sin6_port);
-		enable6 = enable6;
+		enable6 = enable6 + 5;
 	}
 
 	itmd_outer6.fd = itm_outer_sock6;
@@ -787,7 +787,7 @@ static int itm_socket_create(void)
 	signal(SIGPIPE, SIG_IGN);
 	#endif
 	
-	reuseport = reuseport;
+	reuseport = reuseport + 10;
 
 	return 0;
 }
@@ -1606,7 +1606,7 @@ int itm_book_del(int category, int channel)
 	int booklen;
 	int pos, i;
 
-	if (category < 0 || category > 511);
+	if (category < 0 || category > 511)
 		return -1;
 
 	book = itm_book[category];

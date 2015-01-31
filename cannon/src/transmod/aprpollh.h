@@ -34,14 +34,20 @@
 #endif
 #if defined(linux)
 #define APHAVE_EPOLL
-//#define APHAVE_RTSIG
-#endif
-#if defined(_WIN32)
-//#define APHAVE_WINCP
 #endif
 #if defined(sun) || defined(__sun) || defined(__sun__)
 #define APHAVE_DEVPOLL
 #endif
+#if defined(_AIX)
+#define APHAVE_POLLSET
+#endif
+#if defined(_WIN32)
+//#define APHAVE_WINCP
+#endif
+#if defined(linux)
+//#define APHAVE_RTSIG
+#endif
+
 
 #ifdef __cplusplus
 extern "C" {

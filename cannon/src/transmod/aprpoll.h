@@ -25,10 +25,11 @@
 #define APDEVICE_SELECT		1	// 使用select驱动
 #define APDEVICE_POLL		2	// 使用poll驱动
 #define APDEVICE_KQUEUE		3	// 使用kqueue驱动
-#define APDEVICE_WINCP		4	// 使用完成端口驱动
-#define APDEVICE_EPOLL		5	// 使用epoll驱动
-#define APDEVICE_DEVPOLL	6	// 使用dev/poll驱动
-#define APDEVICE_RTSIG		7	// 使用rtsig驱动
+#define APDEVICE_EPOLL		4	// 使用epoll驱动
+#define APDEVICE_DEVPOLL	5	// 使用dev/poll驱动
+#define APDEVICE_POLLSET	6	// 试用pollset驱动
+#define APDEVICE_WINCP		7	// 使用完成端口驱动
+#define APDEVICE_RTSIG		8	// 使用rtsig驱动
 
 #define APOLL_IN	1	// 事件：文件句柄输入事件
 #define APOLL_OUT	2	// 事件：文件句柄输出事件

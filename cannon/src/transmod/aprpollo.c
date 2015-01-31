@@ -162,7 +162,8 @@ static int ape_poll_add(apolld ipd, int fd, int mask, void *user)
 
 	if (ps->num_fd >= ps->max_fd) {
 		i = (ps->max_fd <= 0)? 4 : ps->max_fd * 2;
-		if (iv_resize(&ps->vresult, i * sizeof(struct epoll_event))) return -1;
+		if (iv_resize(&ps->vresult, i * sizeof(struct epoll_event) * 2)) 
+			return -1;
 		ps->mresult = (struct epoll_event*)ps->vresult.data;
 		ps->max_fd = i;
 	}
@@ -241,19 +242,16 @@ static int ape_poll_set(apolld ipd, int fd, int mask)
 	if (fd >= ps->usr_len) return -1;
 	if (ps->fv.fds[fd].fd < 0) return -2;
 
-	ps->fv.fds[fd].mask = 0;
+	ps->fv.fds[fd].mask = mask & (APOLL_IN | APOLL_OUT | APOLL_ERR);
 
 	if (mask & APOLL_IN) {
 		ee.events |= EPOLLIN;
-		ps->fv.fds[fd].mask |= APOLL_IN;
 	}
 	if (mask & APOLL_OUT) {
 		ee.events |= EPOLLOUT;
-		ps->fv.fds[fd].mask |= APOLL_OUT;
 	}
 	if (mask & APOLL_ERR) {
 		ee.events |= EPOLLERR | EPOLLHUP;
-		ps->fv.fds[fd].mask |= APOLL_ERR;
 	}
 
 	retval = epoll_ctl(ps->epfd, EPOLL_CTL_MOD, fd, &ee);
@@ -281,7 +279,7 @@ static int ape_poll_wait(apolld ipd, int timeval)
 static int ape_poll_event(apolld ipd, int *fd, int *event, void **user)
 {
 	PSTRUCT *ps = PDESC(ipd);
-	struct epoll_event *ee;
+	struct epoll_event *ee, uu;
 	int revent = 0, n;
 
 	if (ps->cur_res >= ps->results) return -1;
@@ -294,8 +292,18 @@ static int ape_poll_event(apolld ipd, int *fd, int *event, void **user)
 	if (ee->events & EPOLLOUT) revent |= APOLL_OUT;
 	if (ee->events & (EPOLLERR | EPOLLHUP)) revent |= APOLL_ERR; 
 
-	if (ps->fv.fds[n].fd < 0) revent = 0;
-	revent &= ps->fv.fds[n].mask;
+	if (ps->fv.fds[n].fd < 0) {
+		revent = 0;
+		uu.data.fd = n;
+		uu.events = 0;
+		epoll_ctl(ps->epfd, EPOLL_CTL_DEL, n, &uu);
+	}	else {
+		revent &= ps->fv.fds[n].mask;
+		if (revent == 0) {
+			int mask = ps->fv.fds[n].mask;
+			ape_poll_set(ipd, n, mask);
+		}
+	}
 
 	if (event) *event = revent;
 	if (user) *user = ps->fv.fds[n].user;

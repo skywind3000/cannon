@@ -36,17 +36,20 @@ extern struct APOLL_DRIVER APOLL_POLL;
 #ifdef APHAVE_KQUEUE
 extern struct APOLL_DRIVER APOLL_KQUEUE;
 #endif
-#ifdef APHAVE_WINCP
-extern struct APOLL_DRIVER APOLL_WINCP;
-#endif
 #ifdef APHAVE_EPOLL
 extern struct APOLL_DRIVER APOLL_EPOLL;
 #endif
 #ifdef APHAVE_DEVPOLL
 extern struct APOLL_DRIVER APOLL_DEVPOLL;
 #endif
+#ifdef APHAVE_POLLSET
+extern struct APOLL_DRIVER APOLL_POLLSET;
+#endif
 #ifdef APHAVE_RTSIG
 extern struct APOLL_DRIVER APOLL_RTSIG;
+#endif
+#ifdef APHAVE_WINCP
+extern struct APOLL_DRIVER APOLL_WINCP;
 #endif
 
 //---------------------------------------------------------------------
@@ -65,14 +68,17 @@ static struct APOLL_DRIVER *drivers[] = {
 #ifdef APHAVE_EPOLL
 	&APOLL_EPOLL,
 #endif
+#ifdef APHAVE_DEVPOLL
+	&APOLL_DEVPOLL,
+#endif
+#ifdef APHAVE_POLLSET
+	&APOLL_POLLSET,
+#endif
 #ifdef APHAVE_RTSIG
 	&APOLL_RTSIG,
 #endif
 #ifdef APHAVE_WINCP
 	&APOLL_WINCP,
-#endif
-#ifdef APHAVE_DEVPOLL
-	&APOLL_DEVPOLL,
 #endif
 	NULL
 };

@@ -57,6 +57,11 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+#if defined(__unix__) || defined(unix) || defined(__linux)
+#ifndef __unix
+#define __unix 1
+#endif
+#endif
 
 /*-------------------------------------------------------------------*/
 /* Unix Platform                                                     */
@@ -79,7 +84,7 @@
 #endif
 
 #ifndef __unix
-#define __unix
+#define __unix 1
 #endif
 
 

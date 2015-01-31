@@ -129,7 +129,7 @@ static int apk_init_pd(apolld ipd, int param)
 	ps->num_chg= 0;
 	ps->usr_len = 0;
 	ps->stimeval = -1;
-	param = param;
+	param = param + 10;
 
 	if (apk_grow(ps, 4, 4)) {
 		apk_destroy_pd(ipd);
@@ -195,6 +195,11 @@ static int apk_poll_kevent(apolld ipd, int fd, int filter, int flag)
 	ke->ident = fd;
 	ke->filter = filter;
 	ke->flags = flag;
+
+	if (ps->num_chg > 32000) {
+		kevent(ps->kqueue, ps->mchange, ps->num_chg, NULL, 0, 0);
+		ps->num_chg = 0;
+	}
 
 	return 0;
 }
@@ -341,8 +346,16 @@ static int apk_poll_event(apolld ipd, int *fd, int *event, void **user)
 	else revent = APOLL_ERR;
 	if ((ke->flags & EV_ERROR)) revent = APOLL_ERR;
 
-	if (ps->fv.fds[n].fd < 0) revent = 0;
-	revent &= ps->fv.fds[n].mask;
+	if (ps->fv.fds[n].fd < 0) {
+		revent = 0;
+		apk_poll_kevent(ipd, n, EVFILT_READ, EV_DELETE | EV_DISABLE);
+		apk_poll_kevent(ipd, n, EVFILT_WRITE, EV_DELETE | EV_DISABLE);
+	}	else {
+		revent &= ps->fv.fds[n].mask;
+		if (revent == 0) {
+			apk_poll_set(ipd, n, ps->fv.fds[n].mask);
+		}
+	}
 
 	if (fd) *fd = n;
 	if (event) *event = revent;
