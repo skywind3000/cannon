@@ -962,7 +962,8 @@ int itm_on_close(struct ITMD *itmd, long wparam, long lparam, long length)
 
 	wparam = wparam + 1;
 	lparam = lparam + 1;
-	length = length + 1;	return 0;
+	length = length + 1;	
+	return 0;
 }
 
 //---------------------------------------------------------------------
