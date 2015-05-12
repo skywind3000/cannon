@@ -239,7 +239,8 @@ static int ape_poll_set(apolld ipd, int fd, int mask)
 	ee.events = 0;
 	ee.data.fd = fd;
 
-	if (fd >= ps->usr_len) return -1;
+	if ((unsigned int)fd >= (unsigned int)ps->usr_len) return -1;
+	if (fd < 0) return -1;
 	if (ps->fv.fds[fd].fd < 0) return -2;
 
 	ps->fv.fds[fd].mask = mask & (APOLL_IN | APOLL_OUT | APOLL_ERR);
