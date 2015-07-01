@@ -42,7 +42,7 @@
 extern "C" {
 #endif
 
-#define ITMV_VERSION 0x268	// 传输模块版本号
+#define ITMV_VERSION 0x269	// 传输模块版本号
 
 //=====================================================================
 // Global Variables Definition
@@ -60,6 +60,7 @@ extern int itm_dgram_sock4;	// 数据报套接字
 extern int itm_outer_sock6;	// IPv6 对外监听套接字
 extern int itm_inner_sock6;	// IPv6 对内监听套接字
 extern int itm_dgram_sock6;	// IPv6 数据报套接字
+extern int itm_autoport;	// 端口冲突时是否自动增长
 extern int itm_outer_max;	// 对外最大连接
 extern int itm_inner_max;	// 对内最大连接
 extern int itm_outer_cnt;	// 对外当前连接

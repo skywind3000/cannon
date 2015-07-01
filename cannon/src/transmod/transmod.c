@@ -146,6 +146,8 @@ _exitp:
 //---------------------------------------------------------------------
 APR_MODULE(int) ctm_config(int item, long value, const char *text)
 {
+	int retval = 0;
+
 	switch (item)
 	{
 	case CTMO_HEADER:
@@ -161,6 +163,7 @@ APR_MODULE(int) ctm_config(int item, long value, const char *text)
 	case CTMO_PORTD4:	itm_dgram_port4 = value;	break;
 	case CTMO_PORTD6:	itm_dgram_port6 = value;	break;
 	case CTMO_HTTPSKIP:  itm_httpskip = (int)value; break;
+	case CTMO_AUTOPORT: itm_autoport = (int)value; break;
 
 	case CTMO_DGRAM:
 		switch (value)
@@ -208,8 +211,15 @@ APR_MODULE(int) ctm_config(int item, long value, const char *text)
 	case CTMO_SOCKUDPB:  itm_dgram_blimit = (long)value; break;
 	case CTMO_REUSEADDR:   itm_reuseaddr = (int)value; break;
 	case CTMO_REUSEPORT:   itm_reuseport = (int)value; break;
+
+	case CTMO_GETPU4:	retval = itm_outer_port4; break;
+	case CTMO_GETPC4:	retval = itm_inner_port4; break;
+	case CTMO_GETPD4:	retval = itm_dgram_port4; break;
+	case CTMO_GETPU6:	retval = itm_outer_port6; break;
+	case CTMO_GETPC6:	retval = itm_inner_port6; break;
+	case CTMO_GETPD6:	retval = itm_dgram_port6; break;
 	}
-	return 0;
+	return retval;
 }
 
 //---------------------------------------------------------------------

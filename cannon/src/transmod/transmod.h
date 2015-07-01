@@ -48,7 +48,7 @@ extern "C" {
 #define CTMS_STIME			4	// 取得开始服务时间
 #define CTMS_CSEND			5	// 发送数量
 #define CTMS_CRECV			6	// 接受数量
-#define CTMS_CDISCARD		7	// 错误数量
+#define CTMS_CDISCARD		7	// 放弃数量
 
 #define CTM_STOPPED		0	// 服务状态：停止
 #define CTM_STARTING	1	// 服务状态：启动中
@@ -89,6 +89,7 @@ APR_MODULE(long) ctm_errno(void);
 #define CTMO_PORTD6		7	// IPv6 数据报端口
 #define CTMO_HTTPSKIP	8	// 跳过 HTTP头部
 #define CTMO_DGRAM		9	// 数据报启动模式
+#define CTMO_AUTOPORT	10	// 是否自动端口
 
 #define CTMO_MAXCU		20	// 外部最大连接
 #define CTMO_MAXCC		21	// 内部最大连接
@@ -105,6 +106,13 @@ APR_MODULE(long) ctm_errno(void);
 #define CTMO_DHCPHIGH	42	// 最高的分配
 #define CTMO_PSIZE		43	// 页面大小默认4K
 
+#define CTMO_GETPU4		60	// 读取端口
+#define CTMO_GETPC4		61	// 读取端口
+#define CTMO_GETPD4		62	// 读取端口
+#define CTMO_GETPU6		63	// 读取端口
+#define CTMO_GETPC6		64	// 读取端口
+#define CTMO_GETPD6		65	// 读取端口
+
 #define CTMO_PLOGP		80	// 设置日志打印函数指针
 #define	CTMO_PENCP		81	// 设置加密函数指针
 #define CTMO_LOGMK		82	// 日志报告掩码
@@ -117,7 +125,6 @@ APR_MODULE(long) ctm_errno(void);
 #define CTMO_SOCKSNDI	92	// 内部套接字发送缓存
 #define CTMO_SOCKRCVI	93	// 内部套接字接收缓存
 #define CTMO_SOCKUDPB	94	// 数据报套接字缓存
-
 
 
 // 设置服务参数

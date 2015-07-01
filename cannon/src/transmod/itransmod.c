@@ -48,6 +48,8 @@ int itm_outer_sock6 = -1;		// IPv6 对外监听套接字
 int itm_inner_sock6 = -1;		// IPv6 对内监听套接字
 int itm_dgram_sock6 = -1;		// IPv6 数据报套接字
 
+int itm_autoport = 0;			// 端口冲突时是否自动增长
+
 int itm_outer_max = 8192;		// 对外最大连接
 int itm_inner_max = 4096;		// 对内最大连接
 int itm_outer_cnt = 0;			// 对外当前连接
@@ -480,6 +482,57 @@ int itm_shutdown(void)
 	return 0;
 }
 
+
+//---------------------------------------------------------------------
+// itm_socket_bind
+//---------------------------------------------------------------------
+static int itm_socket_bind(int fd, struct sockaddr *addr,  int addrlen)
+{
+	int start_port = -1;
+	int index;
+	int iter;
+
+	struct sockaddr_in *address4 = (struct sockaddr_in*)addr;
+#ifdef AF_INET6
+	struct sockaddr_in6 *address6 = (struct sockaddr_in6*)addr;
+#endif
+
+	if (addrlen <= 20) {
+		start_port = ntohs(address4->sin_port);
+	}
+#ifdef AF_INET6
+	else {
+		start_port = ntohs(address6->sin6_port);
+	}
+#endif
+
+	if (start_port < 0) {
+		return -10;
+	}
+
+	index = start_port;
+
+	for (iter = 0; iter < 65536; iter++) {
+		if (addrlen <= 20) {
+			address4->sin_port = htons((unsigned short)index);	
+		}
+	#ifdef AF_INET6
+		else {
+			address6->sin6_port = htons((unsigned short)index);
+		}
+	#endif
+		if (apr_bind(fd, addr, addrlen) == 0) {
+			return 0;
+		}
+		if (itm_autoport == 0) break;
+		if (++index >= 65535) {
+			index = start_port;
+		}
+	}
+
+	return -20;
+}
+
 //---------------------------------------------------------------------
 // itm_socket_create
 //---------------------------------------------------------------------
@@ -526,9 +579,9 @@ static int itm_socket_create(void)
 	host_outer4.sin_addr.s_addr = 0;
 	host_inner4.sin_addr.s_addr = itm_inner_addr4;
 	host_dgram4.sin_addr.s_addr = 0;
-	host_outer4.sin_port = htons((short)itm_outer_port4);
-	host_inner4.sin_port = htons((short)itm_inner_port4);
-	host_dgram4.sin_port = htons((short)itm_dgram_port4);
+	host_outer4.sin_port = htons((unsigned short)itm_outer_port4);
+	host_inner4.sin_port = htons((unsigned short)itm_inner_port4);
+	host_dgram4.sin_port = htons((unsigned short)itm_dgram_port4);
 	host_outer4.sin_family = PF_INET;
 	host_inner4.sin_family = PF_INET;
 	host_dgram4.sin_family = PF_INET;
@@ -572,9 +625,9 @@ static int itm_socket_create(void)
 	}
 
 	// 绑定本地套接字
-	if (apr_bind(itm_outer_sock4, (struct sockaddr*)&host_outer4, 0) ||
-		apr_bind(itm_inner_sock4, (struct sockaddr*)&host_inner4, 0) ||
-		apr_bind(itm_dgram_sock4, (struct sockaddr*)&host_dgram4, 0)) {
+	if (itm_socket_bind(itm_outer_sock4, (struct sockaddr*)&host_outer4, 0) ||
+		itm_socket_bind(itm_inner_sock4, (struct sockaddr*)&host_inner4, 0) ||
+		itm_socket_bind(itm_dgram_sock4, (struct sockaddr*)&host_dgram4, 0)) {
 		itm_socket_release();
 		return -3;
 	}
@@ -616,9 +669,9 @@ static int itm_socket_create(void)
 
 	// 配置套接字监听地址
 	memcpy(&host_inner6.sin6_addr.s6_addr, itm_inner_addr6, 16);
-	host_outer6.sin6_port = htons((short)itm_outer_port6);
-	host_inner6.sin6_port = htons((short)itm_inner_port6);
-	host_dgram6.sin6_port = htons((short)itm_dgram_port6);
+	host_outer6.sin6_port = htons((unsigned short)itm_outer_port6);
+	host_inner6.sin6_port = htons((unsigned short)itm_inner_port6);
+	host_dgram6.sin6_port = htons((unsigned short)itm_dgram_port6);
 	host_outer6.sin6_family = AF_INET6;
 	host_inner6.sin6_family = AF_INET6;
 	host_dgram6.sin6_family = AF_INET6;
@@ -653,7 +706,7 @@ static int itm_socket_create(void)
 
 		apr_enable(itm_outer_sock6, APR_CLOEXEC);
 
-		if (apr_bind(itm_outer_sock6, (struct sockaddr*)&host_outer6, 
+		if (itm_socket_bind(itm_outer_sock6, (struct sockaddr*)&host_outer6, 
 			sizeof(host_outer6))) {
 			itm_socket_release();
 			return -12;
@@ -699,7 +752,7 @@ static int itm_socket_create(void)
 
 		apr_enable(itm_inner_sock6, APR_CLOEXEC);
 
-		if (apr_bind(itm_inner_sock6, (struct sockaddr*)&host_inner6, 
+		if (itm_socket_bind(itm_inner_sock6, (struct sockaddr*)&host_inner6, 
 			sizeof(host_inner6))) {
 			itm_socket_release();
 			return -15;
@@ -755,7 +808,7 @@ static int itm_socket_create(void)
 
 		apr_enable(itm_dgram_sock6, APR_CLOEXEC);
 
-		if (apr_bind(itm_dgram_sock6, (struct sockaddr*)&host_dgram6, 
+		if (itm_socket_bind(itm_dgram_sock6, (struct sockaddr*)&host_dgram6, 
 			sizeof(host_dgram6))) {
 			itm_socket_release();
 			return -18;
