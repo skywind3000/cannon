@@ -15,7 +15,7 @@ import datetime, ctypes
 #======================================================================
 # version info
 #======================================================================
-VERSION = '1.23'
+VERSION = '1.24'
 
 
 #======================================================================
@@ -37,13 +37,15 @@ CTM_ERROR		=	1	# 发生错误
 
 _optdict = {  
 	'HEAD':0, 'WTIME':1, 'PORTU4':2, 'PORTC4':3, 'PORTU6':4, 'PORTC6':5,
-	'PORTD4':6, 'PORTD6':7, 'HTTPSKIP':8, 'DGRAM':9, 
+	'PORTD4':6, 'PORTD6':7, 'HTTPSKIP':8, 'DGRAM':9, 'AUTOPORT': 10,
 	'MAXCU':20, 'MAXCC':21, 'TIMEU':22, 'TIMEC':23, 'LIIMT':24, 'LIMTU':25, 
 	'LIMTC':26, 'ADDRC4':27, 'ADDRC6':28, 
 	'DATMAX':40, 'DHCPBASE':41, 'DHCPHIGH':42, 
+	'GPORTU4':60, 'GPORTC4':61, 'GPORTD4': 63,
+	'GPORTU6':64, 'GPORTC6':65, 'GPORTD6': 66,
 	'PLOGP':80, 'PENCP':81, 'LOGMK':82, 'UTIME':84, 'NOREUSE':85,
 	'SOCKRCVO':90, 'SOCKSNDO':91, 'SOCKRCVI':92, 'SOCKSNDI':93, 
-	'SOCKUDPB':94,
+	'SOCKUDPB':94, 
 	}
 
 
@@ -58,7 +60,7 @@ class ctransmod (object):
 		if sys.platform[:3] == 'win':
 			self._win32 = 1
 			self._dllname = 'transmod.dll'
-		self.libctm = self._loadlib(self._dllname)
+		self.libctm = None
 		if not self.libctm:
 			for n in ([ path ] + sys.path):
 				base = os.path.abspath(n)
@@ -173,6 +175,7 @@ class ctransmod (object):
 		return self.__errno()
 	
 	def config (self, *args, **argv):
+		hr = 0
 		for n in argv:
 			text = ''
 			key, val = n.upper(), argv[n]
@@ -181,8 +184,8 @@ class ctransmod (object):
 				val = 0
 			if not key in _optdict:
 				raise Exception('config "%s" invalid'%n)
-			self.__config(_optdict[key], val, text)
-		return 0
+			hr = self.__config(_optdict[key], val, text)
+		return int(hr)
 	
 	def logmode (self, mode, text):
 		self.__handle_logout(mode, text)
@@ -203,6 +206,16 @@ class ctransmod (object):
 		self.__get_stat(ctypes.byref(pkt_send), ctypes.byref(pkt_recv), ctypes.byref(pkt_discard))
 		retval = pkt_send.value, pkt_recv.value, pkt_discard.value
 		return retval
+
+	def get_port (self):
+		ports = {}
+		ports['PORTU4'] = self.config(GPORTU4 = 0)
+		ports['PORTC4'] = self.config(GPORTC4 = 0)
+		ports['PORTD4'] = self.config(GPORTD4 = 0)
+		ports['PORTU6'] = self.config(GPORTU6 = 0)
+		ports['PORTC6'] = self.config(GPORTC6 = 0)
+		ports['PORTD6'] = self.config(GPORTD6 = 0)
+		return ports
 	
 	def update_document (self, loops = 5, waitms = 0.001):
 		for i in xrange(loops):
@@ -574,6 +587,9 @@ class configure (object):
 			config['service']['exec'] = ''
 			#self.error = 'no executive definition in %s.ini'%service
 			#return -7
+		autoport = config['transmod'].get('autoport', '0').lower()
+		autoport = (autoport in ('1', 'yes', 1, 'on', 'y', 'true')) and 1 or 0
+		config['transmod']['autoport'] = str(autoport)
 		config['transmod']['exec'] = config['service']['exec']
 		config['transmod']['execuser'] = config['service'].get("execuser", "")
 		config['transmod']['crontab'] = config['service'].get('crontab', '')
@@ -653,14 +669,16 @@ class configure (object):
 		os.environ['CHADDR'] = remote
 		os.environ['PORTU'] = self.option(service, 'portu', '3000')
 		os.environ['PORTC'] = self.option(service, 'portc', '3008')
+		os.environ['PORTD'] = self.option(service, 'portd', '3000')
 		os.environ['PORTU6'] = self.option(service, 'portu6', '-1')
 		os.environ['PORTC6'] = self.option(service, 'portc6', '-1')
+		os.environ['PORTD6'] = self.option(service, 'portd6', '-1')
 		os.environ['HEADER'] = self.option(service, 'header', '0')
 		os.environ['HTTPSKIP'] = self.option(service, 'httpskip', '0')
+		os.environ['AUTOPORT'] = self.option(service, 'autoport', '0')
 		os.environ['SERVICE'] = service
 		os.environ['CHOME'] = self._dir_home
 		os.environ['CASUALD'] = self._dir_home
-		os.environ['CANNON'] = self._dir_home
 		os.environ['CONFIG'] = self._service[service]
 		path = self.pathshort(self.subdir('bin')) 
 		if self.unix: path = path + ':'
@@ -1118,6 +1136,7 @@ class cservice (object):
 		self.child_pid = -1
 		self.running = 0
 		self.closing = 0
+		self.autoport = 0
 		self.refresh_cfg = False
 		self.flashpolicy = None
 		self.__logfile = None
@@ -1283,6 +1302,7 @@ class cservice (object):
 		self.transmod_config('portd6', 'portd6', -1)
 		self.transmod_config('addrc4', 'chaddr', '127.0.0.1')
 		self.transmod_config('addrc6', 'chaddr6', '\x00' * 16)
+		self.transmod_config('autoport', 'autoport', 0)
 		self.transmod_config('maxcu', 'maxuser', 20000)
 		self.transmod_config('maxcc', 'maxchannel', 100)
 		self.transmod_config('timeu', 'timeoutu', 60 * 30)
@@ -1319,8 +1339,9 @@ class cservice (object):
 		self.execuser = self.option('execuser','')
 		prefix = self.config.subdir('logs/' + self.current + '/d')
 		self.transmod.logmode(self.daemoned and 1 or 3, prefix)
-		if self.__listen_try() != 0:
-			return -3
+		if not self.autoport:
+			if self.__listen_try() != 0:
+				return -3
 		return 0
 	
 	def __refresh_ini (self):
@@ -1701,8 +1722,11 @@ class cservice (object):
 	
 	def sig_chld (self, signum, frame):
 		while 1:
-			pid, status = os.waitpid(-1, os.WNOHANG)
-			if pid > 0: break
+			try:
+				pid, status = os.waitpid(-1, os.WNOHANG)
+			except:
+				pid = -1
+			if pid < 0: break
 		return 0
 	
 	def sig_hup (self, signum, frame):
@@ -1711,6 +1735,36 @@ class cservice (object):
 				self.update()
 		return 0
 	
+	def __envinit (self, service):
+		self.config.mm_open(service)
+		ts = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
+		ports = self.transmod.get_port()
+		self.savecfg['portu4'] = str(ports['PORTU4'])
+		self.savecfg['portc4'] = str(ports['PORTC4'])
+		self.savecfg['portu6'] = str(ports['PORTU6'])
+		self.savecfg['portc6'] = str(ports['PORTC6'])
+		os.environ['PORTU'] = str(ports['PORTU4'])
+		os.environ['PORTC'] = str(ports['PORTC4'])
+		os.environ['PORTD'] = str(ports['PORTD4'])
+		os.environ['PORTU6'] = str(ports['PORTU6'])
+		os.environ['PORTC6'] = str(ports['PORTC6'])
+		os.environ['PORTD6'] = str(ports['PORTD6'])
+		if self.autoport:
+			self.mlog('[auto] portu=%d'%ports['PORTU4'])
+			self.mlog('[auto] portc=%d'%ports['PORTC4'])
+			if ports['PORTD4'] > 0:
+				self.mlog('[auto] portd=%d'%ports['PORTD4'])
+			if ports['PORTU6'] > 0:
+				self.mlog('[auto] portu6=%d'%ports['PORTU6'])
+			if ports['PORTC6'] > 0:
+				self.mlog('[auto] portc6=%d'%ports['PORTC6'])
+			if ports['PORTD6'] > 0:
+				self.mlog('[auto] portd6=%d'%ports['PORTD6'])
+		self.__environ['casuald.up'] = ts
+		self.__environ['casuald.portu'] = self.savecfg['portu4']
+		self.__environ['casuald.portc'] = self.savecfg['portc4']
+		self.__environ['casuald.header'] = self.savecfg['head']
+
 	def start (self, service, console = 0):
 		self.daemoned = 0
 		if not service in self.config:
@@ -1719,14 +1773,17 @@ class cservice (object):
 
 		self.current = service
 		self.config.initdir(service)
+		self.config.load(service)
 
-		if self.__listen_try() != 0:
-			return -2
+		self.autoport = self.option('autoport', 0)
+
+		if not self.autoport:
+			if self.__listen_try() != 0:
+				return -2
 
 		if not console:
 			self.daemon()
 
-		self.config.load(service)
 		os.chdir(self.config._dir_home)
 
 		self.transmod = ctransmod(self.config._dir_bin)
@@ -1753,7 +1810,7 @@ class cservice (object):
 			self.mlog('[ERROR] transmod cannot startup')
 			return -4
 
-		for i in xrange(100):
+		for i in xrange(200):
 			if self.transmod.status(CTMS_SERVICE) == CTM_RUNNING:
 				break
 			time.sleep(0.005)
@@ -1766,13 +1823,9 @@ class cservice (object):
 		self.refresh_cfg = True
 
 		self.__policy()
-		self.config.mm_open(service)
 		
-		ts = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
-		self.__environ['casuald.up'] = ts
-		self.__environ['casuald.portu'] = self.savecfg['portu4']
-		self.__environ['casuald.portc'] = self.savecfg['portc4']
-		self.__environ['casuald.header'] = self.savecfg['head']
+		self.__envinit(service)
+
 		hr = self.__run()
 
 		if hr != 0:
