@@ -625,25 +625,40 @@ static int itm_socket_create(void)
 		apr_setsockopt(itm_dgram_sock4, SOL_SOCKET, SO_SNDBUF, (char*)&buffer2, sizeof(buffer2));
 	}
 
-	// 绑定本地套接字
-	if (itm_socket_bind(itm_outer_sock4, (struct sockaddr*)&host_outer4, 0) ||
-		itm_socket_bind(itm_inner_sock4, (struct sockaddr*)&host_inner4, 0) ||
-		itm_socket_bind(itm_dgram_sock4, (struct sockaddr*)&host_dgram4, 0)) {
+	// 绑定对外套接字
+	if (itm_socket_bind(itm_outer_sock4, (struct sockaddr*)&host_outer4, 0)) {
 		itm_socket_release();
 		return -3;
+	}
+
+	// 监听对外套接字
+	if (apr_listen(itm_outer_sock4, itm_backlog)) {
+		itm_socket_release();
+		return -4;
+	}
+
+	// 绑定对内套接字
+	if (itm_socket_bind(itm_inner_sock4, (struct sockaddr*)&host_inner4, 0)) {
+		itm_socket_release();
+		return -5;
+	}
+
+	// 监听对内套接字
+	if (apr_listen(itm_inner_sock4, itm_backlog)) {
+		itm_socket_release();
+		return -6;
+	}
+
+	// 绑定本地套接字
+	if (itm_socket_bind(itm_dgram_sock4, (struct sockaddr*)&host_dgram4, 0)) {
+		itm_socket_release();
+		return -7;
 	}
 
 	// 初始化 WIN32的 RESET修复
 	if (apr_win32_init(itm_dgram_sock4)) {
 		itm_socket_release();
-		return -4;
-	}
-
-	// 数据流监听开始
-	if (apr_listen(itm_outer_sock4, itm_backlog) || 
-		apr_listen(itm_inner_sock4, itm_backlog)) {
-		itm_socket_release();
-		return -5;
+		return -8;
 	}
 
 	apr_sockname(itm_outer_sock4, (struct sockaddr*)&host_outer4, NULL);
