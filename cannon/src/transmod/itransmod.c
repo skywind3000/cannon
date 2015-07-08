@@ -215,7 +215,8 @@ int itm_startup(void)
 	// Ì×½Ó×Ö³õÊ¼»¯
 	retval = itm_socket_create();
 	if (retval) {
-		itm_log(ITML_BASE, "service starting failed: starting listen error %d", retval);
+		itm_log(ITML_BASE, "service starting failed: listen error code=%d errno=%d", 
+			retval, apr_errno());
 		return -20 + retval;
 	}
 	retval = apr_poll_init(&itm_polld, 0x20000);
